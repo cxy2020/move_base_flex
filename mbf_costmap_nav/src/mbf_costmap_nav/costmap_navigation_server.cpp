@@ -75,6 +75,8 @@ CostmapNavigationServer::CostmapNavigationServer(const TFPtr &tf_listener_ptr) :
                                                       &CostmapNavigationServer::callServiceCheckPathCost, this);
   clear_costmaps_srv_ = private_nh_.advertiseService("clear_costmaps",
                                                      &CostmapNavigationServer::callServiceClearCostmaps, this);
+  clear_area_costmaps_srv_ = private_nh_.advertiseService("clear_area_costmaps",
+                                                          &CostmapNavigationServer::callServiceAreaClearCostmaps, this);
 
   // dynamic reconfigure server for mbf_costmap_nav configuration; also include abstract server parameters
   dsrv_costmap_ = boost::make_shared<dynamic_reconfigure::Server<mbf_costmap_nav::MoveBaseFlexConfig> >(private_nh_);
@@ -704,6 +706,14 @@ bool CostmapNavigationServer::callServiceClearCostmaps(std_srvs::Empty::Request 
   // clear both costmaps
   local_costmap_ptr_->clear();
   global_costmap_ptr_->clear();
+  return true;
+}
+
+bool CostmapNavigationServer::callServiceAreaClearCostmaps(std_srvs::Empty::Request &request,
+                                                           std_srvs::Empty::Response &response)
+{
+  // clear global costmaps area
+  global_costmap_ptr_->clearArea();
   return true;
 }
 

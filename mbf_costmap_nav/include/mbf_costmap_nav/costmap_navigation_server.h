@@ -219,6 +219,14 @@ private:
   bool callServiceClearCostmaps(std_srvs::Empty::Request &request, std_srvs::Empty::Response &response);
 
   /**
+   * @brief Callback method for the make_plan service
+   * @param request Empty request object.
+   * @param response Empty response object.
+   * @return true, if the service completed successfully, false otherwise
+   */
+  bool callServiceAreaClearCostmaps(std_srvs::Empty::Request &request, std_srvs::Empty::Response &response);
+
+  /**
    * @brief Reconfiguration method called by dynamic reconfigure.
    * @param config Configuration parameters. See the MoveBaseFlexConfig definition.
    * @param level bit mask, which parameters are set.
@@ -261,6 +269,9 @@ private:
 
   //! Service Server for the clear_costmap service
   ros::ServiceServer clear_costmaps_srv_;
+
+  //! Service Server for the clear_area_costmap service
+  ros::ServiceServer clear_area_costmaps_srv_;
 };
 
 } /* namespace mbf_costmap_nav */

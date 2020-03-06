@@ -42,6 +42,7 @@
 #define MBF_COSTMAP_NAV__COSTMAP_WRAPPER_H_
 
 #include <costmap_2d/costmap_2d_ros.h>
+#include <costmap_2d/costmap_layer.h>
 
 #include <mbf_utility/types.h>
 
@@ -87,6 +88,11 @@ public:
    * @brief Clear costmap.
    */
   void clear();
+
+  /**
+   * @brief Clear costmap.
+   */
+  void clearArea();
 
   /**
    * @brief Check whether the costmap should be activated.

@@ -92,6 +92,49 @@ void CostmapWrapper::clear()
   resetLayers();
 }
 
+void CostmapWrapper::clearArea()
+{
+  // lock and clear costmap
+  boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*getCostmap()->getMutex());
+  std::vector<boost::shared_ptr<costmap_2d::Layer> >* plugins = getLayeredCostmap()->getPlugins();
+
+  geometry_msgs::PoseStamped pose;
+
+  if(!getRobotPose(pose)){
+    ROS_ERROR("Cannot clear map because pose cannot be retrieved");
+    return;
+  }
+
+  double start_point_x = pose.pose.position.x - 3.5;
+  double start_point_y = pose.pose.position.y - 3.5;
+  double end_point_x = start_point_x + 7.0;
+  double end_point_y = start_point_y + 7.0;
+
+  for (std::vector<boost::shared_ptr<costmap_2d::Layer> >::iterator pluginp = plugins->begin(); pluginp != plugins->end(); ++pluginp) {
+    boost::shared_ptr<costmap_2d::Layer> plugin = *pluginp;
+    std::string name = plugin->getName();
+    int slash = name.rfind('/');
+    if( slash != std::string::npos ){
+      name = name.substr(slash+1);
+    }
+
+    if (name == "obstacles_p" || name == "obstacles_s") {
+      boost::shared_ptr<costmap_2d::CostmapLayer> costmap;
+      costmap = boost::static_pointer_cast<costmap_2d::CostmapLayer>(plugin);
+
+      int start_x, start_y, end_x, end_y;
+      costmap->worldToMapNoBounds(start_point_x, start_point_y, start_x, start_y);
+      costmap->worldToMapNoBounds(end_point_x, end_point_y, end_x, end_y);
+
+      costmap->clearInArea(start_x, start_y, end_x, end_y);
+
+      double ox    = costmap->getOriginX(), oy = costmap->getOriginY();
+      double width = costmap->getSizeInMetersX(), height = costmap->getSizeInMetersY();
+      costmap->addExtraBounds(ox, oy, ox + width, oy + height);
+    }
+  }
+}
+
 void CostmapWrapper::checkActivate()
 {
   boost::mutex::scoped_lock sl(check_costmap_mutex_);
