@@ -58,7 +58,7 @@ void sigintHandler(int sig)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "mbf_2d_nav_server", ros::init_options::NoSigintHandler);
+  ros::init(argc, argv, "move_base_flex", ros::init_options::NoSigintHandler);
 
   ros::NodeHandle nh;
   ros::NodeHandle private_nh("~");

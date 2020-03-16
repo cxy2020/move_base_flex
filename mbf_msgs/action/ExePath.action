@@ -13,6 +13,7 @@ uint8 concurrency_slot
 # Predefined success codes:
 uint8 SUCCESS         = 0
 # 1..9 are reserved as plugin specific non-error results
+uint8 NEED_REPLAN_GLOBAL_PATH = 1
 
 # Predefined error codes:
 uint8 FAILURE         = 100  # Unspecified failure, only used for old, non-mfb_core based plugins
@@ -30,6 +31,7 @@ uint8 TF_ERROR        = 111
 uint8 NOT_INITIALIZED = 112
 uint8 INVALID_PLUGIN  = 113
 uint8 INTERNAL_ERROR  = 114
+uint8 LOCAL_TRAJ_NOT_FEASIBLE = 115
 # 121..149 are reserved as plugin specific errors
 
 uint32 outcome

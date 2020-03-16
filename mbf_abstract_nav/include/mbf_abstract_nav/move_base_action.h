@@ -70,7 +70,7 @@ class MoveBaseAction
 
   ~MoveBaseAction();
 
-  void start(GoalHandle &goal_handle);
+  void start(GoalHandle &goal_handle, bool is_set_accepted = true);
 
   void cancel();
 
@@ -159,6 +159,7 @@ class MoveBaseAction
 
   MoveBaseActionState action_state_;
   MoveBaseActionState recovery_trigger_;
+  bool is_new_replanning_asked_;
 };
 
 } /* mbf_abstract_nav */

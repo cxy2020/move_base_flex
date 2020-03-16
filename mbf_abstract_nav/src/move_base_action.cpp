@@ -60,7 +60,8 @@ MoveBaseAction::MoveBaseAction(const std::string &name,
      action_state_(NONE),
      recovery_trigger_(NONE),
      replanning_(false),
-     replanning_rate_(1.0)
+     replanning_rate_(1.0),
+     is_new_replanning_asked_(false)
 {
 }
 
@@ -97,11 +98,13 @@ void MoveBaseAction::reconfigure(
   oscillation_timeout_ = ros::Duration(config.oscillation_timeout);
   oscillation_distance_ = config.oscillation_distance;
   recovery_enabled_ = config.recovery_enabled;
+  is_new_replanning_asked_ = false;
 }
 
 void MoveBaseAction::cancel()
 {
   action_state_ = CANCELED;
+  is_new_replanning_asked_ = false;
 
   if(!action_client_get_path_.getState().isDone())
   {
@@ -119,11 +122,17 @@ void MoveBaseAction::cancel()
   }
 }
 
-void MoveBaseAction::start(GoalHandle &goal_handle)
+void MoveBaseAction::start(GoalHandle &goal_handle, bool is_set_accepted)
 {
+  if(is_new_replanning_asked_) {
+    return;
+  }
+  is_new_replanning_asked_ = true;
   action_state_ = GET_PATH;
 
-  goal_handle.setAccepted();
+  if(is_set_accepted) {
+      goal_handle.setAccepted();
+  }
 
   goal_handle_ = goal_handle;
 
@@ -195,6 +204,10 @@ void MoveBaseAction::actionExePathFeedback(
   robot_pose_ = feedback->current_pose;
   goal_handle_.publishFeedback(move_base_feedback_);
 
+  if(move_base_feedback_.outcome == mbf_msgs::ExePathResult::NEED_REPLAN_GLOBAL_PATH ||
+          move_base_feedback_.outcome == mbf_msgs::ExePathResult::LOCAL_TRAJ_NOT_FEASIBLE) {
+      start(goal_handle_, false);
+  }
   // we create a navigation-level oscillation detection using exe_path action's feedback,
   // as the later doesn't handle oscillations created by quickly failing repeated plans
 
@@ -244,6 +257,7 @@ void MoveBaseAction::actionGetPathDone(
     const actionlib::SimpleClientGoalState &state,
     const mbf_msgs::GetPathResultConstPtr &result_ptr)
 {
+  is_new_replanning_asked_ = false;
   if (action_state_ == CANCELED)
     return;
 
@@ -577,6 +591,7 @@ void MoveBaseAction::actionGetPathReplanningDone(
     const actionlib::SimpleClientGoalState &state,
     const mbf_msgs::GetPathResultConstPtr &result)
 {
+  is_new_replanning_asked_ = false;
   if (!replanning_ || action_state_ != EXE_PATH)
     return; // replan only while following a path and if replanning is enabled (can be disabled by dynamic reconfigure)
 
