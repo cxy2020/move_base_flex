@@ -48,7 +48,8 @@ RobotInformation::RobotInformation(TF &tf_listener,
                                    const ros::Duration &tf_timeout)
  : tf_listener_(tf_listener), global_frame_(global_frame), robot_frame_(robot_frame), tf_timeout_(tf_timeout)
 {
-
+  ros::NodeHandle nh("/");
+  get_robot_pose_service_ = nh.advertiseService("get_robot_pose", &RobotInformation::getRobotPoseRos, this);
 }
 
 
@@ -80,5 +81,11 @@ const std::string& RobotInformation::getRobotFrame() const {return robot_frame_;
 const TF& RobotInformation::getTransformListener() const {return tf_listener_;};
 
 const ros::Duration& RobotInformation::getTfTimeout() const {return tf_timeout_;}
+
+bool RobotInformation::getRobotPoseRos(mbf_msgs::GetRobotPoseRequest& req,
+                                       mbf_msgs::GetRobotPoseResponse& res) {
+  res.is_success = getRobotPose(res.pose);
+  return true;
+}
 
 } /* namespace mbf_abstract_nav */

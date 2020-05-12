@@ -48,6 +48,8 @@
 
 #include <mbf_utility/types.h>
 
+#include "mbf_msgs/GetRobotPose.h"
+
 namespace mbf_abstract_nav{
 
 class RobotInformation{
@@ -75,6 +77,8 @@ class RobotInformation{
   const ros::Duration& getTfTimeout() const;
 
  private:
+  bool getRobotPoseRos(mbf_msgs::GetRobotPoseRequest& req,
+                       mbf_msgs::GetRobotPoseResponse& res);
   const TF& tf_listener_;
 
   const std::string &global_frame_;
@@ -83,6 +87,7 @@ class RobotInformation{
 
   const ros::Duration &tf_timeout_;
 
+  ros::ServiceServer get_robot_pose_service_;
 };
 
 } /* mbf_abstract_nav */
